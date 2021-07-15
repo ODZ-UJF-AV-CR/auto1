@@ -80,6 +80,8 @@ while True:
     post = requests.post(camera_url+'/control/startRecording', json = {'recMode': 'normal'})
     print(post.reason)
     
+    time.sleep(1) # wait for filling half of cyrcular buffer
+    
     print('#Waiting...')
     sys.stdout.flush()
     osc.write(":SINGLE")
@@ -100,7 +102,7 @@ while True:
 
 
     # Chronos camera
-    time.sleep(1)
+    time.sleep(1) # wait 1 second after trigger
     post = requests.post(camera_url+'/control/stopRecording')
 
     # RIGOL DS7014
@@ -131,13 +133,12 @@ while True:
     print(ble)
     if (len(ble)>0):
         if (ble[0]=='s'):
-            mp4filename = str(filename) + ".mp4"
             print('#OK')
         
             osc.write(':SAVE:WAVeform D:\\blesky\\' + str(filename) + '.wfm')
             print('#Saving waveform...')
 
-            post = requests.post(camera_url+'/control/startFilesave', json = {'format': 'h264', 'device': 'mmcblk1p1', 'filename': mp4filename})
+            post = requests.post(camera_url+'/control/startFilesave', json = {'format': 'h264', 'device': 'mmcblk1p1', 'filename': str(filename)})
             if post.reason == "OK" :
             	print("#Saving video...")
             else:

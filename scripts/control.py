@@ -57,11 +57,10 @@ post = requests.post(camera_url+'/control/stopRecording')
 print(post.reason)
 post = requests.post(camera_url+'/control/flushRecording')
 print(post.reason)
-post = requests.post(camera_url+'/control/p', json = {'resolution': {'hRes': 928, 'vRes': 928, 'hOffset': 176, 'vOffset': 66}}) # 'vDark':100
+post = requests.post(camera_url+'/control/p', json = {'resolution': {'hRes': 928, 'vRes': 928, 'hOffset': 176, 'vOffset': 66}})
 print(post.reason)
-post = requests.post(camera_url+'/control/p', json = {'recMaxFrames':4000})    
-print(post.reason)
-post = requests.post(camera_url+'/control/p', json = {'recTrigDelay':2000})    
+post = requests.post(camera_url+'/control/p', json = {'recMaxFrames':3226})  # cca 2 s
+post = requests.post(camera_url+'/control/p', json = {'recTrigDelay':1613})  # This value is only informative (it works for HW trigger only)
 print(post.reason)
 print('#Please readjust shutter manually !!!!!!!!!!!!!!!!!!!!')
 
@@ -97,34 +96,33 @@ while True:
         else:
             print('#', msg)
             if ((msg.name() == 'TIM_TM2')):
-                try:
-                    msg.unpack()
-                    timestring = '$HIT,'
-                    timestring += str(msg.count)
-                    timestring += ','
-                    timestring += str(datetime.datetime.utcnow())
-                    timestring += ','
-                    filename = util.gpsTimeToTime(msg.wnR, 1.0e-3*msg.towMsR + 1.0e-9*msg.towSubMsR)
-                    timestring += str(filename)
-                    timestring += ','
-                    timestring += str(datetime.datetime.utcfromtimestamp(filename))
-                    print(timestring)
-                    sys.stdout.flush()
-                    break
-
-                except ublox.UBloxError as e:
-                    print(e)
-                    break
+                break
 
 
     # Chronos camera
-    mp4filename = str(filename) + ".mp4"
-    #!!!time.sleep(1)
+    time.sleep(1)
     post = requests.post(camera_url+'/control/stopRecording')
 
     # RIGOL DS7014
     #osc.write(":STOP")
     print('#stop')
+
+    try:
+        msg.unpack()
+        timestring = '$HIT,'
+        timestring += str(msg.count)
+        timestring += ','
+        timestring += str(datetime.datetime.utcnow())
+        timestring += ','
+        filename = util.gpsTimeToTime(msg.wnR, 1.0e-3*msg.towMsR + 1.0e-9*msg.towSubMsR)
+        timestring += str(filename)
+        timestring += ','
+        timestring += str(datetime.datetime.utcfromtimestamp(filename))
+        print(timestring)
+        sys.stdout.flush()
+
+    except ublox.UBloxError as e:
+        print(e)
 
     # waiting for sawings
     print('#press sssss for saving waveform'),
@@ -133,6 +131,7 @@ while True:
     print(ble)
     if (len(ble)>0):
         if (ble[0]=='s'):
+            mp4filename = str(filename) + ".mp4"
             print('#OK')
         
             osc.write(':SAVE:WAVeform D:\\blesky\\' + str(filename) + '.wfm')

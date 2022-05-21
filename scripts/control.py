@@ -59,7 +59,8 @@ post = requests.post(camera_url+'/control/flushRecording')
 print(post.reason)
 post = requests.post(camera_url+'/control/p', json = {'resolution': {'hRes': 928, 'vRes': 928, 'hOffset': 176, 'vOffset': 66}})
 print(post.reason)
-post = requests.post(camera_url+'/control/p', json = {'recMaxFrames':3226})  # cca 2 s
+#post = requests.post(camera_url+'/control/p', json = {'recMaxFrames':6000})  # cca 2 s = 3226
+post = requests.post(camera_url+'/control/p', json = {'recMaxFrames':3226})  # cca 2 s = 3226
 post = requests.post(camera_url+'/control/p', json = {'recTrigDelay':1613})  # This value is only informative (it works for HW trigger only)
 print(post.reason)
 print('#Please readjust shutter manually !!!!!!!!!!!!!!!!!!!!')
@@ -116,10 +117,14 @@ while True:
         timestring += ','
         timestring += str(datetime.datetime.utcnow())
         timestring += ','
-        filename = util.gpsTimeToTime(msg.wnR, 1.0e-3*msg.towMsR + 1.0e-9*msg.towSubMsR)
-        timestring += str(filename)
+        #timestamp = util.gpsTimeToTime(msg.wnR, 1.0e-3*msg.towMsR + 1.0e-9*msg.towSubMsR)
+        timestamp = msg.wnR*604800 + 315964800 + 1.0e-3*msg.towMsR + 1.0e-9*msg.towSubMsR
+        timestring += str(float(timestamp))
         timestring += ','
-        timestring += str(datetime.datetime.utcfromtimestamp(filename))
+        utctime = datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
+        filename = utctime.strftime("%Y.%m.%d.%H.%M.%S.%f")
+        timestring += filename
+        #timestring += str(datetime.datetime.utcfromtimestamp(filename))
         print(timestring)
         sys.stdout.flush()
 

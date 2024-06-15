@@ -59,7 +59,8 @@ TX1/INT1 (D 11) PD3 17|        |24 PC2 (D 18) TCK
 #define MISO        6    // PB6
 #define SCK         7    // PB7
 #define INT         20   // PC4
-#define PIPAK       19   // PC3
+//#define PIPAK       19   // PC3
+#define PIPAK       24   // PA0
 #define TRIGGER     23   // PC7
 #define BUTTON      22   // PC6
 
